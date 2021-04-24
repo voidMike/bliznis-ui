@@ -1,15 +1,32 @@
 export default [
 	{
+		path: '/',
+		name: 'Landing',
+		component: () => import(/* webpackChunkName: "landing" */ '../views/LandingSearch'),
+		meta: {
+			nav: false,
+			layout: 'Landing'
+		}
+	},
+	{
 		path: '/search',
 		name: 'Pretraga',
-		component: () => import(/* webpackChunkName: "about" */ '../views/Search.vue')
+		component: () => import(/* webpackChunkName: "about" */ '../views/Search.vue'),
+		meta: {
+			nav: true
+		}
 	},
 	{
 		path: '/categories',
-		name: 'About',
-		// route level code-splitting
-		// this generates a separate chunk (about.[hash].js) for this route
-		// which is lazy-loaded when the route is visited.
-		component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+		name: 'Kategorije',
+		component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
+		meta: {
+			nav: true
+		}
+	},
+	{
+		path: '/company/',
+		name: 'Kompanija',
+		component: () => import(/* webpackChunkName: "about" */ '../views/Company')
 	}
 ]

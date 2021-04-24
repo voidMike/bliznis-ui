@@ -5,7 +5,7 @@
 			color="primary"
 			flat
 		>
-			<v-container class="py-0 fill-height">
+			<v-container class="py-0 fill-height" style="max-width:1200px">
 				<v-avatar
 					class="mr-10"
 					color="grey darken-1"
@@ -14,10 +14,11 @@
 
 				<v-btn
 					v-for="link in links"
-					:key="link"
+					:key="link.name"
+					:to="link.path"
 					text
 				>
-					{{ link }}
+					{{ link.name }}
 				</v-btn>
 
 				<v-spacer></v-spacer>
@@ -35,7 +36,7 @@
 		</v-app-bar>
 
 		<v-main class="grey lighten-3">
-			<v-container fluid>
+			<v-container>
 				<router-view></router-view>
 			</v-container>
 		</v-main>
@@ -43,15 +44,16 @@
 </template>
 
 <script>
+	import routes from '../router/routes'
 	export default {
 		data: () => ({
-			links: [
-				'Dashboard',
-				'Messages',
-				'Profile',
-				'Updates',
-			],
+			links: [],
 		}),
-		created() {}
+		created() {
+			for (const route of routes) {
+				if (route?.meta?.nav)
+					this.links.push(route);
+			}
+		}
 	}
 </script>

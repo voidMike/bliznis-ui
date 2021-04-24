@@ -4,12 +4,14 @@
 
 <script>
 import Constrained from './layouts/Constrained';
+import Landing from './layouts/Landing'
 
 export default {
 	name: 'App',
 
 	components: {
 		Constrained,
+		Landing
 	},
 
 	data: () => ({
@@ -17,7 +19,7 @@ export default {
 	}),
 	computed: {
 		component() {
-			return 'Constrained';
+			return this.$route?.meta?.layout ?? 'Constrained';
 		}
 	}
 };
