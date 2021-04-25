@@ -8,67 +8,13 @@
 				class="overflow-hidden"
 			>
 			<v-progress-linear indeterminate :active="loading" height="8"/>
+			<search-box class="mt-8" :data.sync="item" @search="search" @catLoaded="search"/>
 			<v-row class="pa-4" justify="start">
-				<v-col cols="7">
-					<v-text-field
-						dense
-						label="Pretraga"
-						outlined
-						append-icon="mdi-magnify"
-						v-model="searchTerm"
-						hide-details
-						class="mb-3 rounded"
-						v-on:keyup.enter="search"
-						@click:append="search"
-					>
-					</v-text-field>
-				</v-col>
-				<v-col cols="7">
-					<v-menu max-height="250px" offset-y>
-						<template v-slot:activator="{on, attrs}">
-							<v-text-field
-								dense
-								label="Kategorija"
-								outlined
-								append-icon="mdi-playlist-star"
-								v-model="catSearch"
-								hide-details
-								class="mb-3 rounded"
-								v-bind="attrs"
-								v-on="on"
-							>
-							</v-text-field>
-						</template>
-						<v-treeview
-							transition
-							style="background:white;"
-							activatable
-							hoverable
-							:items="categories"
-							:search="catSearch"
-							:filter="filter"
-							:active.sync="activeCategory"
-							return-object
-						></v-treeview>
-					</v-menu>
-				</v-col>
-				<v-col cols="7">
-					<v-slider
-						v-model="rangeIndex"
-						:tick-labels="rangeLabels"
-						step="10"
-						max="80"
-					>
-					</v-slider>
-				</v-col>
-				<v-col cols="12">
-					<v-btn width="200" color="primary" @click="search"><v-icon>mdi-refresh</v-icon>Osvježi</v-btn>
-				</v-col>
 				<v-col class="my-1" cols="12">
 					<v-divider/>
 				</v-col>
 				<v-col class="my-2" cols="12" v-for="(biz, index) in businesses" :key="index">
-					<biz-card :id="biz.id" :title="biz.name" :category="biz.categoryName"></biz-card>
+					<biz-card class="mx-16" :id="biz.id" :title="biz.name" :category="biz.categoryName"></biz-card>
 				</v-col>
 			</v-row>
 			</v-sheet>
@@ -78,82 +24,49 @@
 
 <script>
 import BizCard from '../components/BizCard';
+import SearchBox from '../components/SearchBox.vue';
 
 export default {
 	name: 'search',
-	components: {BizCard},
+	components: {BizCard,SearchBox},
 	data() {
 		return {
 			loading: false,
-			rangeIndex: 0,
-			activeCategory: [],
-			searchTerm: null,
+			item: {
+				categoryId: null,
+				useLocation: null,
+				useUserLocation: null,
+				Lat: 45, // Let's keep this like that.
+				Long: 17,
+				address: null,
+				radius: null,
+				searchTerm: null
+			},
 			catSearch: null,
 			businesses: [
-			],
-			categories: [
 			],
 			rangeLabels: ['1km', '2km', '5km', '10km', '15km', '20km', '30km', '50km', '100km']
 		};
 	},
 	async created() {
-		await this.fetchCategories();
-		const query = this.$route.query;
-		this.searchTerm = query.searchTerm ?? null;
-		this.rangeIndex = this.rangeLabels.findIndex((elem) => elem===query.radius+'km')*10 ?? 0;
-		this.activeCategory = this.findCat(this.categories, query.categoryId);
-		this.search();
-	},
-	computed: {
-		filter () {
-			return this.caseSensitive
-				? (item, search, textKey) => item[textKey].indexOf(search) > -1
-				: undefined;
-		}
-	},
-	watch: {
-		activeCategory() {
-			this.setCatSearch();
+		for(const k of Object.keys(this.$route.query))
+		{
+			this.item[k] = this.$route.query[k];
 		}
 	},
 	methods: {
-		search() {
-			const radius = this.rangeLabels[this.rangeIndex/10].split('km').shift();
-			let data = {
-				Lat: 45,
-				Long: 17,
-				radius: radius,
-				categoryId: this.activeCategory[0]?.id,
-				searchTerm: this.searchTerm
-			}
-			this.$router.replace({name: 'Pretraga', query: data});
+		search(item) {
+			this.loading = true;
+			this.$router.replace({name: 'Pretraga', query: item});
 			this.$http({
 				url: '/companies',
 				method: 'get',
-				params: data
+				params: item
 			}).then(({data}) => {
 				this.businesses = data;
+			}).finally(() => {
+				this.loading = false;
 			});
-		},
-		async fetchCategories() {
-			return this.$http({
-				url: '/values/categories'
-			}).then(({data}) => {
-				this.categories = data;
-			})
-		},
-		setCatSearch() {
-			this.catSearch = this.activeCategory[0]?.name ?? '';
-		},
-		findCat(cats, id) {
-			for(const cat of cats) {
-				if (cat.id === Number(id))
-					return [cat];
-				let rcat = this.findCat(cat.children, id);
-				if (rcat.length)
-					return [rcat];
-			}
-			return [];
 		}
 	}
 }

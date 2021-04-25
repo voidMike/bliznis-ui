@@ -13,7 +13,8 @@ export default [
 		name: 'Pretraga',
 		component: () => import(/* webpackChunkName: "about" */ '../views/Search.vue'),
 		meta: {
-			nav: true
+			nav: true,
+			layout: 'Constrained'
 		}
 	},
 	{
@@ -21,12 +22,16 @@ export default [
 		name: 'Kategorije',
 		component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
 		meta: {
-			nav: true
+			nav: true,
+			layout: 'Constrained'
 		}
 	},
 	{
-		path: '/company/',
+		path: '/company/:id',
 		name: 'Kompanija',
-		component: () => import(/* webpackChunkName: "about" */ '../views/Company')
+		component: () => import(/* webpackChunkName: "about" */ '../views/Company'),
+		meta: {
+			layout: 'Constrained'
+		}
 	}
 ]

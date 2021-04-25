@@ -19,7 +19,7 @@ export default {
 	}),
 	computed: {
 		component() {
-			return this.$route?.meta?.layout ?? 'Constrained';
+			return this.$route?.meta?.layout ?? 'Landing';
 		}
 	}
 };
